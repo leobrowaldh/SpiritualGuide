@@ -3,4 +3,4 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FunctionApp.Models.FunctionReturnModels;
 
-public record AddQuoteReturnModel(IActionResult actionResult, TableData tableData);
+public record AddQuoteReturnModel(IActionResult actionResult, List<TableData> tableDatas);
