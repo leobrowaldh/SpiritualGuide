@@ -15,8 +15,21 @@ if (string.IsNullOrEmpty(keyVaultUri))
 {
     Console.WriteLine("KEY_VAULT_URI not found in configuration");
 }
-//TODO: optimize DefaultAzureCredential to improve performance and avoid unnecessary authentication attempts
-else { builder.Configuration.AddAzureKeyVault(new Uri(keyVaultUri), new DefaultAzureCredential()); }
+else
+{
+    builder.Configuration.AddAzureKeyVault(new Uri(keyVaultUri), new DefaultAzureCredential(
+                    new DefaultAzureCredentialOptions()
+                    {
+                        ExcludeAzureCliCredential = true,
+                        ExcludeAzureDeveloperCliCredential = true,
+                        ExcludeAzurePowerShellCredential = true,
+                        ExcludeEnvironmentCredential = true,
+                        ExcludeInteractiveBrowserCredential = true,
+                        ExcludeSharedTokenCacheCredential = true,
+                        ExcludeWorkloadIdentityCredential = true,
+                    })
+    );
+}
 
 builder.ConfigureFunctionsWebApplication();
 

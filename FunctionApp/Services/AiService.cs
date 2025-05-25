@@ -6,9 +6,9 @@ namespace FunctionApp.Services;
 public class AiService : IAiService
 {
     private readonly EmbeddingClient _client;
-    private readonly ILogger _logger;
+    private readonly ILogger<AiService> _logger;
 
-    public AiService(EmbeddingClient client, ILogger logger)
+    public AiService(EmbeddingClient client, ILogger<AiService> logger)
     {
         _client = client;
         _logger = logger;
@@ -20,7 +20,7 @@ public class AiService : IAiService
         {
             var result = await _client.GenerateEmbeddingsAsync(quotes);
 
-            _logger.LogInformation($"Successfully generated embeddings for {result.Value.Count} quotes.");
+            _logger.LogInformation("Successfully generated embeddings for {value count} quotes.", result.Value.Count);
 
             return result.Value.Select(r => r.ToFloats().ToArray()).ToList();
         }
