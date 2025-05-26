@@ -1,11 +1,15 @@
+using Azure.Data.Tables;
 using Azure.Identity;
 using FunctionApp.Services;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Builder;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OpenAI.Embeddings;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 var builder = FunctionsApplication.CreateBuilder(args);
 
@@ -37,12 +41,18 @@ builder.Services
     .AddApplicationInsightsTelemetryWorkerService()
     .ConfigureFunctionsApplicationInsights();
 
-// Read API key from configuration or environment
 string apiKey = builder.Configuration["open-ai-key"] ??
                 Environment.GetEnvironmentVariable("open-ai-key")
                 ?? throw new Exception("OpenAI API key is missing");
 
+
 builder.Services.AddSingleton(sp => new EmbeddingClient("text-embedding-3-small", apiKey));
 builder.Services.AddScoped<IAiService, AiService>();
+builder.Services.AddAzureClients(clientBuilder =>
+{
+    //switch to managed identity when deploying:
+    //clientBuilder.AddTableServiceClient(new Uri("https://<your-storage-account>.table.core.windows.net"))
+    clientBuilder.AddTableServiceClient(builder.Configuration["AzureWebJobsStorage"]).WithName("QuotesTableClient");
+});
 
 builder.Build().Run();

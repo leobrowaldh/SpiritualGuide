@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using System.Reflection;
 using System.Text.Json;
 
 namespace FunctionApp.Functions;
@@ -66,5 +67,14 @@ public class AddQuote
 
         _logger.LogInformation("Saving {tableDatas Count} quotes to storage.", tableDatas.Count);
         return new AddQuoteReturnModel() { ActionResult = new OkObjectResult(tableDatas), TableDatas = tableDatas };
+
     }
 }
+
+//Ideal Chunk Size for Embedding
+//Length: ~30 to 90 seconds of spoken content
+
+//Words: ~75 to 225 words
+
+//Why: This roughly corresponds to 500–750 tokens, which is well within the sweet spot for models like OpenAI’s text-embedding-3-small.
+
