@@ -3,12 +3,12 @@ using OpenAI.Embeddings;
 
 namespace FunctionApp.Services;
 
-public class AiService : IAiService
+public class OpenAiService : IAiService
 {
     private readonly EmbeddingClient _client;
-    private readonly ILogger<AiService> _logger;
+    private readonly ILogger<OpenAiService> _logger;
 
-    public AiService(EmbeddingClient client, ILogger<AiService> logger)
+    public OpenAiService(EmbeddingClient client, ILogger<OpenAiService> logger)
     {
         _client = client;
         _logger = logger;
@@ -31,4 +31,20 @@ public class AiService : IAiService
         }
     }
 
+    public async Task<float[]> EmbedAsync(string quote)
+    {
+        try
+        {
+            var result = await _client.GenerateEmbeddingAsync(quote);
+
+            _logger.LogInformation("Successfully embedded user question.");
+
+            return result.Value.ToFloats().ToArray();
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Error calling OpenAI embedding API");
+            throw;
+        }
+    }
 }

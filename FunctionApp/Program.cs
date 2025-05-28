@@ -45,14 +45,26 @@ string apiKey = builder.Configuration["open-ai-key"] ??
                 Environment.GetEnvironmentVariable("open-ai-key")
                 ?? throw new Exception("OpenAI API key is missing");
 
-
+builder.Services.AddScoped<IDbService, DbService>();
 builder.Services.AddSingleton(sp => new EmbeddingClient("text-embedding-3-small", apiKey));
-builder.Services.AddScoped<IAiService, AiService>();
+builder.Services.AddScoped<IAiService, OpenAiService>();
 builder.Services.AddAzureClients(clientBuilder =>
 {
     //switch to managed identity when deploying:
     //clientBuilder.AddTableServiceClient(new Uri("https://<your-storage-account>.table.core.windows.net"))
     clientBuilder.AddTableServiceClient(builder.Configuration["AzureWebJobsStorage"]).WithName("QuotesTableClient");
+});
+
+builder.Services.AddHttpClient("E5LMLApi", options =>
+{
+    options.BaseAddress = new Uri("http://localhost:8000/"); // Change to your docker host if needed
+    options.DefaultRequestHeaders.Add("Accept", "application/json");
+});
+builder.Services.AddScoped<IE5LMLService, E5LMLService>(sp =>
+{
+    var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+    var client = httpClientFactory.CreateClient("E5LMLApi");
+    return new E5LMLService(client);
 });
 
 builder.Build().Run();

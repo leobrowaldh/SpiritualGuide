@@ -1,30 +1,30 @@
 using FunctionApp.Enums;
 using FunctionApp.Models.FunctionRequestModels;
-using FunctionApp.Models.FunctionReturnModels;
 using FunctionApp.Models.Storage;
 using FunctionApp.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using System.Reflection;
 using System.Text.Json;
 
 namespace FunctionApp.Functions;
 
-public class AddQuote
+internal class AddQuote
 {
     private readonly ILogger<AddQuote> _logger;
     private readonly IAiService _aiService;
+    private readonly IDbService _dbService;
 
-    public AddQuote(ILogger<AddQuote> logger, IAiService aiService)
+    internal AddQuote(ILogger<AddQuote> logger, IAiService aiService, IDbService dbService)
     {
         _logger = logger;
         _aiService = aiService;
+        _dbService = dbService;
     }
 
     [Function(nameof(AddQuote))]
-    public async Task<AddQuoteReturnModel> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequest req)
     {
         _logger.LogInformation("Http trigger - Adding Quote");
 
@@ -66,7 +66,9 @@ public class AddQuote
         }
 
         _logger.LogInformation("Saving {tableDatas Count} quotes to storage.", tableDatas.Count);
-        return new AddQuoteReturnModel() { ActionResult = new OkObjectResult(tableDatas), TableDatas = tableDatas };
+        await _dbService.AddTableEntitiesAsync(tableDatas);
+
+        return  new OkObjectResult(tableDatas);
 
     }
 }

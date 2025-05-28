@@ -1,0 +1,78 @@
+using FunctionApp.Helpers;
+using FunctionApp.Models.Storage;
+using FunctionApp.Services;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Logging;
+using System.Text.Json;
+using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
+
+namespace FunctionApp.Functions;
+
+internal class Ask
+{
+    private readonly ILogger<Ask> _logger;
+    private readonly IDbService _dbService;
+    private readonly IAiService _aiService;
+
+    public Ask(ILogger<Ask> logger, IDbService dbService, IAiService aiService)
+    {
+        _logger = logger;
+        _dbService = dbService;
+        _aiService = aiService;
+    }
+
+    [Function(nameof(Ask))]
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequest req)
+    {
+        _logger.LogInformation("C# HTTP trigger function processed a request.");
+
+        string userQuestion = await new StreamReader(req.Body).ReadToEndAsync();
+        float[] embeddedQuestion = await _aiService.EmbedAsync(userQuestion);
+
+        var quotes = await _dbService.GetAllQuotesAsync();
+
+        // Deserialize embeddings and find best match
+        float bestScore = float.NegativeInfinity;
+        TableData? bestQuote = null;
+
+        foreach (var q in quotes)
+        {
+            var quoteEmbedding = JsonSerializer.Deserialize<float[]>(q.EmbeddingJson);
+            if (quoteEmbedding == null || quoteEmbedding.Length != embeddedQuestion.Length)
+            {
+                _logger.LogWarning("Skipping quote with Rowkey = {RowKey} due to invalid embedding length.", q.RowKey);
+                continue;
+            }
+
+            float score = AiHelper.CosineSimilarity(embeddedQuestion, quoteEmbedding);
+            if (score > bestScore)
+            {
+                bestScore = score;
+                bestQuote = q;
+            }
+        }
+
+        if (bestQuote == null)
+            return new NotFoundObjectResult("No matching quote found.");
+
+        //TODO: Save quote linked to user to not repeat:
+        //(If Table Storage)
+        //UserQuotes
+
+        //PartitionKey = userId
+
+        //RowKey = quoteId
+
+        //Properties: ShownOn, IsFavorite
+
+        //also check shownon, and if long ago, then show again and update shownon
+
+        return new OkObjectResult(new
+        {
+            Quote = bestQuote.QuoteString,
+            Similarity = bestScore
+        });
+    }
+}

@@ -9,4 +9,5 @@ public interface IAiService
     /// <param name="quotes"></param>
     /// <returns></returns>
     Task<List<float[]>> EmbedAsync(IEnumerable<string> quotes);
+    Task<float[]> EmbedAsync(string quote);
 }
