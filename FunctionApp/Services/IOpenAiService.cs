@@ -1,7 +1,7 @@
 ﻿
 namespace FunctionApp.Services;
 
-public interface IAiService
+public interface IOpenAiService
 {
     /// <summary>
     /// create a list of embeddings for the given quotes using OpenAI's embedding API

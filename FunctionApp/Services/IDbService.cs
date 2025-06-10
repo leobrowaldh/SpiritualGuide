@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace FunctionApp.Services;
-internal interface IDbService
+public interface IDbService
 {
     Task AddTableEntitiesAsync(List<TableData> entities);
     Task<List<TableData>> GetAllQuotesAsync();

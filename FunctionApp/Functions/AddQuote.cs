@@ -10,16 +10,16 @@ using System.Text.Json;
 
 namespace FunctionApp.Functions;
 
-internal class AddQuote
+public class AddQuote
 {
     private readonly ILogger<AddQuote> _logger;
-    private readonly IAiService _aiService;
+    private readonly IOpenAiService _openAiService;
     private readonly IDbService _dbService;
 
-    internal AddQuote(ILogger<AddQuote> logger, IAiService aiService, IDbService dbService)
+    public AddQuote(ILogger<AddQuote> logger, IOpenAiService openAiService, IDbService dbService)
     {
         _logger = logger;
-        _aiService = aiService;
+        _openAiService = openAiService;
         _dbService = dbService;
     }
 
@@ -48,7 +48,7 @@ internal class AddQuote
         _logger.LogInformation("Received {quotes count} quotes for embedding.", quotes.Count);
 
         _logger.LogInformation("Calling OpenAI embedding API to embed quotes.");
-        var embeddedQuotes = await _aiService.EmbedAsync(quotes);
+        var embeddedQuotes = await _openAiService.EmbedAsync(quotes);
 
         List<TableData> tableDatas = [];
 
@@ -57,7 +57,7 @@ internal class AddQuote
             var data = new TableData
             {
                 QuoteString = quotes[i],
-                EmbeddingJson = JsonSerializer.Serialize(embeddedQuotes[i]),
+                OpenAi3SEmbeddingJson = JsonSerializer.Serialize(embeddedQuotes[i]),
                 PartitionKey = $"{author}"
             };
 

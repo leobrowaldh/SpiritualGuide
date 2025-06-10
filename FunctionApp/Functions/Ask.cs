@@ -10,13 +10,13 @@ using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext
 
 namespace FunctionApp.Functions;
 
-internal class Ask
+public class Ask
 {
     private readonly ILogger<Ask> _logger;
     private readonly IDbService _dbService;
-    private readonly IAiService _aiService;
+    private readonly IOpenAiService _aiService;
 
-    public Ask(ILogger<Ask> logger, IDbService dbService, IAiService aiService)
+    public Ask(ILogger<Ask> logger, IDbService dbService, IOpenAiService aiService)
     {
         _logger = logger;
         _dbService = dbService;
@@ -39,7 +39,7 @@ internal class Ask
 
         foreach (var q in quotes)
         {
-            var quoteEmbedding = JsonSerializer.Deserialize<float[]>(q.EmbeddingJson);
+            var quoteEmbedding = JsonSerializer.Deserialize<float[]>(q.OpenAi3SEmbeddingJson);
             if (quoteEmbedding == null || quoteEmbedding.Length != embeddedQuestion.Length)
             {
                 _logger.LogWarning("Skipping quote with Rowkey = {RowKey} due to invalid embedding length.", q.RowKey);
@@ -72,6 +72,7 @@ internal class Ask
         return new OkObjectResult(new
         {
             Quote = bestQuote.QuoteString,
+            Author = bestQuote.PartitionKey,
             Similarity = bestScore
         });
     }

@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using System.Xml;
 
 namespace FunctionApp.Services;
-internal class DbService : IDbService
+public class DbService : IDbService
 {
     private readonly TableClient _quoteTableClient;
     private readonly ILogger<DbService> _logger;

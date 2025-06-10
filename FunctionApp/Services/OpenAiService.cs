@@ -3,7 +3,7 @@ using OpenAI.Embeddings;
 
 namespace FunctionApp.Services;
 
-public class OpenAiService : IAiService
+public class OpenAiService : IOpenAiService
 {
     private readonly EmbeddingClient _client;
     private readonly ILogger<OpenAiService> _logger;

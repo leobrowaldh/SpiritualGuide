@@ -1,4 +1,3 @@
-using Azure.Data.Tables;
 using Azure.Identity;
 using FunctionApp.Services;
 using Microsoft.Azure.Functions.Worker;
@@ -8,8 +7,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OpenAI.Embeddings;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 var builder = FunctionsApplication.CreateBuilder(args);
 
@@ -47,7 +44,7 @@ string apiKey = builder.Configuration["open-ai-key"] ??
 
 builder.Services.AddScoped<IDbService, DbService>();
 builder.Services.AddSingleton(sp => new EmbeddingClient("text-embedding-3-small", apiKey));
-builder.Services.AddScoped<IAiService, OpenAiService>();
+builder.Services.AddScoped<IOpenAiService, OpenAiService>();
 builder.Services.AddAzureClients(clientBuilder =>
 {
     //switch to managed identity when deploying:
@@ -57,7 +54,7 @@ builder.Services.AddAzureClients(clientBuilder =>
 
 builder.Services.AddHttpClient("E5LMLApi", options =>
 {
-    options.BaseAddress = new Uri("http://localhost:8000/"); // Change to your docker host if needed
+    options.BaseAddress = new Uri("http://localhost:8000/");
     options.DefaultRequestHeaders.Add("Accept", "application/json");
 });
 builder.Services.AddScoped<IE5LMLService, E5LMLService>(sp =>

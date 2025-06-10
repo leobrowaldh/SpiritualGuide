@@ -7,7 +7,13 @@ namespace FunctionApp.Models.Storage;
 public class TableData : ITableEntity
 {
     public string QuoteString { get; set; } = string.Empty;
-    public string EmbeddingJson { get; set; } = string.Empty;
+    public string OpenAi3SEmbeddingJson { get; set; } = string.Empty;
+    public string OpenAi3LEmbeddingJson { get; set; } = string.Empty;
+    public string HFe5bEmbeddingJson { get; set; } = string.Empty;
+    public string HFe5lEmbeddingJson { get; set; } = string.Empty;
+    public string HFminiLMEmbeddingJson { get; set; } = string.Empty;
+    public string HFdistiluseEmbeddingJson { get; set; } = string.Empty;
+
     //corresponds to the author of the quote:
     public string PartitionKey { get; set; } = string.Empty;
     //Corresponds to the normalized hashed quote:
