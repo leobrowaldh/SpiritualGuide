@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import './App.css'
 import settingsIcon from './assets/settings-icon.svg'
+import { askQuestion, type AskResponse } from './services/apiService'
 
 function NavBar(){
   return (
-    <div className='h-12 p-3 border'>
-      Navbar
+    <div className='bg-cyan-600 dark:bg-blue-950 h-12 p-3 shadow-lg'>
+      Spiritual Guide
     </div>
   )
 }
@@ -24,14 +25,14 @@ function InputField({ onAsk }: InputFieldProps) {
   }
 
   return (
-    <form method='post' onSubmit={handleSubmit} className="flex flex-row h-full">
+    <form method='post' onSubmit={handleSubmit} className="flex flex-row h-full shadow-lg rounded-xl">
       <input 
         name="userInput"
-        className="flex-1 border p-2 rounded-l" 
+        className="flex-1 p-2 rounded-l" 
         placeholder="Ask anything..." 
         defaultValue=""
       />
-      <button type='submit' className="bg-blue-500 text-white px-4 rounded-r">
+      <button type='submit' className="bg-cyan-600 dark:bg-blue-950 hover:bg-sky-800 active:bg-indigo-400 px-4 rounded-r shadow-lg">
         Ask
       </button>
     </form>
@@ -55,25 +56,36 @@ type AnswerFieldProps = {
 
 function AnswerField({ answer }: AnswerFieldProps) {
   return (
-    <div className="p-4 h-full">
-      {answer || "Answers appear here"}
+    <div className="p-4 shadow-lg relative w-full h-full">
+      {answer ? (
+        <p>{answer}</p>
+      ) : (
+        <img
+          src="/gifs/zen-meditation.gif"
+          alt="meditating zen master"
+          className="absolute inset-0 w-full h-full object-fill"
+        />
+      )}
     </div>
   );
 }
 
 
+
 function Main() {
   const [answer, setAnswer] = useState('');
 
-  function handleAsk(input: string) {
-    // Replace with your real API call
-    console.log("User input:", input);
-    setAnswer(`You asked: ${input}`);
+  async function handleAsk(input: string) {
+    
+    const response: AskResponse = await askQuestion(input);
+
+    setAnswer(`${response.quote} - ${response.author}` || "No answer found");
+
   }
 
   return (
-    <div className="rounded-lg my-14 flex-1 flex flex-col p-6 gap-4 border w-[90%] max-w-4xl mx-auto">
-      <div className="h-14">
+    <div className="bg-gray-300 dark:bg-neutral-900 rounded-lg my-14 flex-1 flex flex-col p-6 gap-4 w-[90%] max-w-4xl mx-auto shadow-lg">
+      <div className="h-14 bg-white dark:bg-neutral-800">
         <InputField onAsk={handleAsk} />
       </div>
 
@@ -81,7 +93,7 @@ function Main() {
         <Settings />
       </div>
 
-      <div className="rounded-lg flex-1 min-h-[200px] border overflow-auto">
+      <div className="bg-white dark:bg-neutral-800 rounded-lg flex-1 shadow-lg">
         <AnswerField answer={answer} />
       </div>
     </div>
@@ -91,7 +103,7 @@ function Main() {
 
 function App() {
   return (
-    <div className='h-screen flex flex-col'>
+    <div className='dark:bg-neutral-800 dark:text-white flex flex-col h-screen'>
       <NavBar />
       <Main />
     </div>
