@@ -12,8 +12,8 @@ var builder = FunctionsApplication.CreateBuilder(args);
 
 #region "Env variable Secret Access(for now)"
 
-var openApiKey = builder.Configuration["open-ai-key"]
-                ?? Environment.GetEnvironmentVariable("open-ai-key")
+var openApiKey = builder.Configuration["OPENAI_API_KEY"]
+                ?? Environment.GetEnvironmentVariable("OPENAI_API_KEY")
                 ?? throw new Exception("OpenAI API key is missing");
 #endregion
 
@@ -47,8 +47,8 @@ builder.Services
     .AddApplicationInsightsTelemetryWorkerService()
     .ConfigureFunctionsApplicationInsights();
 
-string apiKey = builder.Configuration["open-ai-key"] ??
-                Environment.GetEnvironmentVariable("open-ai-key")
+string apiKey = builder.Configuration["OPENAI_API_KEY"] ??
+                Environment.GetEnvironmentVariable("OPENAI_API_KEY")
                 ?? throw new Exception("OpenAI API key is missing");
 
 builder.Services.AddScoped<IDbService, DbService>();
