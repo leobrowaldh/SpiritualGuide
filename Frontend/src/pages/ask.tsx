@@ -6,7 +6,7 @@ import { IoMdSettings } from "react-icons/io";
 
 export default function AskPage() {
   const [answer, setAnswer] = useState('');
-  const [teachers, setTeachers] = useState<number[]>([0,1,2,3,4,5]);
+  // const [teachers, setTeachers] = useState<number[]>([0,1,2,3,4,5]);
 
   async function handleAsk(input: string) {
     

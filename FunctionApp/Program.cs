@@ -10,27 +10,36 @@ using OpenAI.Embeddings;
 
 var builder = FunctionsApplication.CreateBuilder(args);
 
-var keyVaultUri = builder.Configuration["KEY_VAULT_URI"];
+#region "Env variable Secret Access(for now)"
 
-if (string.IsNullOrEmpty(keyVaultUri))
-{
-    Console.WriteLine("KEY_VAULT_URI not found in configuration");
-}
-else
-{
-    builder.Configuration.AddAzureKeyVault(new Uri(keyVaultUri), new DefaultAzureCredential(
-                    new DefaultAzureCredentialOptions()
-                    {
-                        ExcludeAzureCliCredential = true,
-                        ExcludeAzureDeveloperCliCredential = true,
-                        ExcludeAzurePowerShellCredential = true,
-                        ExcludeEnvironmentCredential = true,
-                        ExcludeInteractiveBrowserCredential = true,
-                        ExcludeSharedTokenCacheCredential = true,
-                        ExcludeWorkloadIdentityCredential = true,
-                    })
-    );
-}
+var openApiKey = builder.Configuration["open-ai-key"]
+                ?? Environment.GetEnvironmentVariable("open-ai-key")
+                ?? throw new Exception("OpenAI API key is missing");
+#endregion
+
+#region "Keyvault Secret Access"
+//var keyVaultUri = builder.Configuration["KEY_VAULT_URI"];
+
+//if (string.IsNullOrEmpty(keyVaultUri))
+//{
+//    Console.WriteLine("KEY_VAULT_URI not found in configuration");
+//}
+//else
+//{
+//    builder.Configuration.AddAzureKeyVault(new Uri(keyVaultUri), new DefaultAzureCredential(
+//                    new DefaultAzureCredentialOptions()
+//                    {
+//                        ExcludeAzureCliCredential = true,
+//                        ExcludeAzureDeveloperCliCredential = true,
+//                        ExcludeAzurePowerShellCredential = true,
+//                        ExcludeEnvironmentCredential = true,
+//                        ExcludeInteractiveBrowserCredential = true,
+//                        ExcludeSharedTokenCacheCredential = true,
+//                        ExcludeWorkloadIdentityCredential = true,
+//                    })
+//    );
+//}
+#endregion
 
 builder.ConfigureFunctionsWebApplication();
 
