@@ -30,9 +30,10 @@ public class Ask
         _logger.LogInformation("C# HTTP trigger function processed a request.");
 
         string userQuestion = await new StreamReader(req.Body).ReadToEndAsync();
+        float[] embeddedQuestion;
         try
         {
-            float[] embeddedQuestion = await _aiService.EmbedAsync(userQuestion);
+            embeddedQuestion = await _aiService.EmbedAsync(userQuestion);
         }
         catch (RequestFailedException ex) when (ex.Status == 404)
         {
