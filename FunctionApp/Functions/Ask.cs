@@ -1,3 +1,4 @@
+using Azure;
 using FunctionApp.Helpers;
 using FunctionApp.Models.Storage;
 using FunctionApp.Services;
@@ -29,8 +30,15 @@ public class Ask
         _logger.LogInformation("C# HTTP trigger function processed a request.");
 
         string userQuestion = await new StreamReader(req.Body).ReadToEndAsync();
-        float[] embeddedQuestion = await _aiService.EmbedAsync(userQuestion);
-
+        try
+        {
+            float[] embeddedQuestion = await _aiService.EmbedAsync(userQuestion);
+        }
+        catch (RequestFailedException ex) when (ex.Status == 404)
+        {
+            _logger.LogWarning("Table Storage Issues: {Message}", ex.Message);
+            return new NotFoundObjectResult("Database call did not go as expected.");
+        }
         var quotes = await _dbService.GetAllQuotesAsync();
         if (quotes == null || quotes.Count == 0)
         {
