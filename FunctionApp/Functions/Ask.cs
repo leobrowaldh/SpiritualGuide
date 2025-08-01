@@ -85,8 +85,9 @@ public class Ask
                 Author = bestQuote.PartitionKey,
                 Similarity = bestScore
             });
-            response.Headers.Add("Content-Type", "application/json");
+            response.Headers.Add("Content-Type", "application/json; charset=utf-8");
             response.Headers.Add("X-Content-Type-Options", "nosniff");
+            response.Headers.Add("Cache-Control", "no-store, no-cache, must-revalidate");
             await response.WriteStringAsync(json);
         }
 
