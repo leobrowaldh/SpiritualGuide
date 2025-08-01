@@ -4,9 +4,7 @@ using FunctionApp.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using System.Net;
 using System.Text.Json;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
@@ -26,18 +24,20 @@ public class Ask
     }
 
     [Function(nameof(Ask))]
-    public async Task<HttpResponseData> Run(
-    [HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req,
-    FunctionContext executionContext)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequest req)
     {
-        var logger = executionContext.GetLogger(nameof(Ask));
-        logger.LogInformation("Processing question...");
+        _logger.LogInformation("C# HTTP trigger function processed a request.");
 
         string userQuestion = await new StreamReader(req.Body).ReadToEndAsync();
         float[] embeddedQuestion = await _aiService.EmbedAsync(userQuestion);
 
         var quotes = await _dbService.GetAllQuotesAsync();
+        if (quotes == null || quotes.Count == 0)
+        {
+            return new NotFoundObjectResult("No quotes available.");
+        }
 
+        // Deserialize embeddings and find best match
         float bestScore = float.NegativeInfinity;
         TableData? bestQuote = null;
 
@@ -46,7 +46,7 @@ public class Ask
             var quoteEmbedding = JsonSerializer.Deserialize<float[]>(q.OpenAi3SEmbeddingJson);
             if (quoteEmbedding == null || quoteEmbedding.Length != embeddedQuestion.Length)
             {
-                logger.LogWarning("Invalid embedding length for RowKey = {RowKey}", q.RowKey);
+                _logger.LogWarning("Skipping quote with Rowkey = {RowKey} due to invalid embedding length.", q.RowKey);
                 continue;
             }
 
@@ -58,39 +58,26 @@ public class Ask
             }
         }
 
-        var response = req.CreateResponse();
-
         if (bestQuote == null)
+            return new NotFoundObjectResult("No matching quote found.");
+
+        //TODO: Save quote linked to user to not repeat:
+        //(If Table Storage)
+        //UserQuotes
+
+        //PartitionKey = userId
+
+        //RowKey = quoteId
+
+        //Properties: ShownOn, IsFavorite
+
+        //also check shownon, and if long ago, then show again and update shownon
+
+        return new OkObjectResult(new
         {
-            response.StatusCode = HttpStatusCode.NotFound;
-            await response.WriteStringAsync("No matching quote found.");
-            //TODO: Save quote linked to user to not repeat:
-            //(If Table Storage)
-            //UserQuotes
-
-            //PartitionKey = userId
-
-            //RowKey = quoteId
-
-            //Properties: ShownOn, IsFavorite
-
-            //also check shownon, and if long ago, then show again and update shownon
-        }
-        else
-        {
-            response.StatusCode = HttpStatusCode.OK;
-            var json = JsonSerializer.Serialize(new
-            {
-                Quote = bestQuote.QuoteString,
-                Author = bestQuote.PartitionKey,
-                Similarity = bestScore
-            });
-            response.Headers.Add("Content-Type", "application/json; charset=utf-8");
-            response.Headers.Add("X-Content-Type-Options", "nosniff");
-            response.Headers.Add("Cache-Control", "no-store, no-cache, must-revalidate");
-            await response.WriteStringAsync(json);
-        }
-
-        return response;
+            Quote = bestQuote.QuoteString,
+            Author = bestQuote.PartitionKey,
+            Similarity = bestScore
+        });
     }
 }
