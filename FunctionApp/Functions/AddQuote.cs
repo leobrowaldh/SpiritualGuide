@@ -2,10 +2,10 @@ using FunctionApp.Enums;
 using FunctionApp.Models.FunctionRequestModels;
 using FunctionApp.Models.Storage;
 using FunctionApp.Services;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using System.Net;
 using System.Text.Json;
 
 namespace FunctionApp.Functions;
@@ -24,7 +24,9 @@ public class AddQuote
     }
 
     [Function(nameof(AddQuote))]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequest req)
+    public async Task<HttpResponseData> Run(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req,
+        FunctionContext context)
     {
         _logger.LogInformation("Http trigger - Adding Quote");
 
@@ -33,13 +35,17 @@ public class AddQuote
 
         if (request == null || request.Quotes == null || request.Quotes.Count == 0)
         {
-            throw new ArgumentException("Invalid request body.");
+            var badResponse = req.CreateResponse(HttpStatusCode.BadRequest);
+            await badResponse.WriteStringAsync("Invalid request body.");
+            return badResponse;
         }
 
         if (!Enum.IsDefined(typeof(EnAuthor), request.Author))
         {
             var validAuthors = string.Join(", ", Enum.GetValues<EnAuthor>());
-            throw new ArgumentException($"Invalid author. Valid values are: {validAuthors}");
+            var badResponse = req.CreateResponse(HttpStatusCode.BadRequest);
+            await badResponse.WriteStringAsync($"Invalid author. Valid values are: {validAuthors}");
+            return badResponse;
         }
 
         string author = request.Author.ToString();
@@ -61,17 +67,22 @@ public class AddQuote
                 PartitionKey = $"{author}"
             };
 
-            data.SetKeys(); // compute Hash and RowKey
+            data.SetKeys();
             tableDatas.Add(data);
         }
 
         _logger.LogInformation("Saving {tableDatas Count} quotes to storage.", tableDatas.Count);
         await _dbService.AddTableEntitiesAsync(tableDatas);
 
-        return  new OkObjectResult(tableDatas);
+        var response = req.CreateResponse(HttpStatusCode.OK);
+        response.Headers.Add("Content-Type", "application/json");
+        response.Headers.Add("X-Content-Type-Options", "nosniff");
+        await response.WriteStringAsync(JsonSerializer.Serialize(tableDatas));
 
+        return response;
     }
 }
+
 
 //Ideal Chunk Size for Embedding
 //Length: ~30 to 90 seconds of spoken content
