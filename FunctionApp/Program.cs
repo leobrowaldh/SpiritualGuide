@@ -10,7 +10,7 @@ using OpenAI.Embeddings;
 
 var builder = FunctionsApplication.CreateBuilder(args);
 
-#region "Env variable Secret Access(for now)"
+#region "Env variable Secret Access(consumption plan dont allow keyvault)"
 
 var openApiKey = builder.Configuration["OPENAI_API_KEY"]
                 ?? Environment.GetEnvironmentVariable("OPENAI_API_KEY")
@@ -56,9 +56,23 @@ builder.Services.AddSingleton(sp => new EmbeddingClient("text-embedding-3-small"
 builder.Services.AddScoped<IOpenAiService, OpenAiService>();
 builder.Services.AddAzureClients(clientBuilder =>
 {
-    //switch to managed identity when deploying:
-    //clientBuilder.AddTableServiceClient(new Uri("https://<your-storage-account>.table.core.windows.net"))
-    clientBuilder.AddTableServiceClient(builder.Configuration["AzureWebJobsStorage"]).WithName("QuotesTableClient");
+    //Managed identity when deployed:
+    var uriString = builder.Configuration["AzureWebJobsStorage__tableServiceUri"];
+
+    if (string.IsNullOrWhiteSpace(uriString))
+    {
+        throw new InvalidOperationException(
+            "Missing configuration: 'AzureWebJobsStorage__tableServiceUri'. This must be set in the environment variables or App Settings."
+        );
+    }
+
+    clientBuilder
+        .AddTableServiceClient(new Uri(uriString))
+        .WithName("QuotesTableClient");
+
+    //for local dev:
+    /*clientBuilder.AddTableServiceClient(builder.Configuration["AzureWebJobsStorage"]).WithName("QuotesTableClient")*/
+    ;
 });
 
 builder.Services.AddHttpClient("E5LMLApi", options =>
