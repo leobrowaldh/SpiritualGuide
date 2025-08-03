@@ -57,7 +57,9 @@ builder.Services.AddScoped<IOpenAiService, OpenAiService>();
 builder.Services.AddAzureClients(clientBuilder =>
 {
     //Managed identity when deployed:
-    var uriString = builder.Configuration["AzureWebJobsStorage__tableServiceUri"];
+    var uriString = builder.Configuration["AzureWebJobsStorage:tableServiceUri"]
+        ?? builder.Configuration["AzureWebJobsStorage__tableServiceUri"]
+        ?? Environment.GetEnvironmentVariable("AzureWebJobsStorage__tableServiceUri");
 
     if (string.IsNullOrWhiteSpace(uriString))
     {
