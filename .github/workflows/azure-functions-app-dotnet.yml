@@ -23,6 +23,7 @@ on:
     branches: ["master"]
     paths:
       - 'FunctionApp/**'
+      - '.github/workflows/azure-functions-app-dotnet.yml'
 
 env:
   AZURE_FUNCTIONAPP_NAME: 'spiritGuide-fn'   # set this to your function app name on Azure
