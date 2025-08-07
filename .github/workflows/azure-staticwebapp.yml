@@ -32,6 +32,12 @@ jobs:
         with:
           submodules: true
 
+      - name: Set Vite environment variables
+        run: |
+          echo "VITE_FUNCTION_KEY=${{ secrets.VITE_FUNCTION_KEY }}" >> $GITHUB_ENV
+          echo "VITE_API_BASE_URL=https://spiritguide-fn-d5f8bub2awgdgngj.swedencentral-01.azurewebsites.net/api" >> $GITHUB_ENV
+
+
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
