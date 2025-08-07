@@ -2,6 +2,7 @@ using Azure;
 using FunctionApp.Helpers;
 using FunctionApp.Models.Storage;
 using FunctionApp.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -25,7 +26,7 @@ public class Ask
     }
 
     [Function(nameof(Ask))]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequest req)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequest req)
     {
         _logger.LogInformation("C# HTTP trigger function processed a request.");
 

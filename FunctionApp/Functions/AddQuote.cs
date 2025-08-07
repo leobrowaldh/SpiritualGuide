@@ -2,6 +2,7 @@ using FunctionApp.Enums;
 using FunctionApp.Models.FunctionRequestModels;
 using FunctionApp.Models.Storage;
 using FunctionApp.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -24,7 +25,7 @@ public class AddQuote
     }
 
     [Function(nameof(AddQuote))]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequest req)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Admin, "post")] HttpRequest req)
     {
         _logger.LogInformation("Http trigger - Adding Quote");
 
