@@ -43,6 +43,6 @@ export function askQuestion(question: string): Promise<AskResponse> {
 }
 
 //this one wont work, need master key, i wont access it from this ui.
-// export function addQuote(quote: string): Promise<AddQuoteResponse> {
-//   return fetchApi<AddQuoteResponse>(`${API_BASE_URL}/AddQuote?code=${functionKey}`, { quote });
-// }
+export function addQuote(quote: string): Promise<AddQuoteResponse> {
+  return fetchApi<AddQuoteResponse>(`${API_BASE_URL}/AddQuote?code=${functionKey}`, { quote });
+}
