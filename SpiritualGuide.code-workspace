@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"name": "Root",
+			"path": "."
+		},
+		{
+			"path": "Frontend"
+		},
+		{
+			"path": "FunctionApp"
+		},
+		{
+			"path": "python-api"
+		}
+	]
+}
