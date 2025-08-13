@@ -1,25 +1,23 @@
+using api.Extensions;
+using api.Helpers;
+using api.Models.Requests;
+using api.Models.Responses;
+using api.Models.Storage;
+using api.Services;
+using Azure;
 using Azure.Identity;
-using FunctionApp.Services;
-using Microsoft.Identity.Web;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Web;
+using Microsoft.Identity.Web.Resource;
 using OpenAI.Embeddings;
+using System.Text.Json;
 
-var builder = FunctionsApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
 
-#region "Env variable Secret Access(consumption plan dont allow keyvault)"
-
-var openApiKey = builder.Configuration["OPENAI_API_KEY"]
-                ?? Environment.GetEnvironmentVariable("OPENAI_API_KEY")
-                ?? throw new Exception("OpenAI API key is missing");
-#endregion
-
-#region "Keyvault Secret Access"
 var keyVaultUri = builder.Configuration["KEY_VAULT_URI"];
 
 if (string.IsNullOrEmpty(keyVaultUri))
@@ -41,13 +39,11 @@ else
                     })
     );
 }
-#endregion
 
-builder.ConfigureFunctionsWebApplication();
-
-builder.Services
-    .AddApplicationInsightsTelemetryWorkerService()
-    .ConfigureFunctionsApplicationInsights();
+// Add services to the container.
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
+builder.Services.AddAuthorization();
 
 string apiKey = builder.Configuration["OPENAI_API_KEY"] ??
                 Environment.GetEnvironmentVariable("OPENAI_API_KEY")
@@ -91,4 +87,15 @@ builder.Services.AddScoped<IE5LMLService, E5LMLService>(sp =>
     return new E5LMLService(client);
 });
 
-builder.Build().Run();
+var app = builder.Build();
+
+
+app.UseHttpsRedirection();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+var scopeRequiredByApi = app.Configuration["AzureAd:Scopes"] ?? "";
+app.MapEndpoints(scopeRequiredByApi);
+
+app.Run();
