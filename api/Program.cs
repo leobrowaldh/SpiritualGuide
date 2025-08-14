@@ -75,17 +75,19 @@ builder.Services.AddAzureClients(clientBuilder =>
     ;
 });
 
-builder.Services.AddHttpClient("E5LMLApi", options =>
-{
-    options.BaseAddress = new Uri("http://localhost:8000/");
-    options.DefaultRequestHeaders.Add("Accept", "application/json");
-});
-builder.Services.AddScoped<IE5LMLService, E5LMLService>(sp =>
-{
-    var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
-    var client = httpClientFactory.CreateClient("E5LMLApi");
-    return new E5LMLService(client);
-});
+#region HuggingFace model
+//builder.Services.AddHttpClient("E5LMLApi", options =>
+//{
+//    options.BaseAddress = new Uri("http://localhost:8000/");
+//    options.DefaultRequestHeaders.Add("Accept", "application/json");
+//});
+//builder.Services.AddScoped<IE5LMLService, E5LMLService>(sp =>
+//{
+//    var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+//    var client = httpClientFactory.CreateClient("E5LMLApi");
+//    return new E5LMLService(client);
+//});
+#endregion
 
 var app = builder.Build();
 
