@@ -1,0 +1,42 @@
+trigger:
+  branches:
+    include:
+      - master
+  paths:
+    include:
+      - api/**
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  working_dir: '$(System.DefaultWorkingDirectory)/api'
+
+steps:
+- task: DotNetCoreCLI@2
+  inputs:
+    azureSubscription: 'Azure subscription 1 (f275f355-8e02-4494-bc67-197191969e80)'
+    command: 'build'
+    projects: 'api.csproj'
+    arguments: '--configuration Release --runtime linux-x64'
+
+- task: DotNetCoreCLI@2
+  inputs:
+    azureSubscription: 'Azure subscription 1 (f275f355-8e02-4494-bc67-197191969e80)'
+    command: 'publish'
+    publishWebProjects: false
+    projects: 'api.csproj'
+    arguments: 'configuration Release --runtime linux-x64'
+
+- task: AzureRmWebAppDeployment@5
+  inputs:
+    ConnectionType: 'AzureRM'
+    azureSubscription: 'Azure subscription 1 (f275f355-8e02-4494-bc67-197191969e80)'
+    appType: 'webAppLinux'
+    WebAppName: 'spiritual-guide-api'
+    packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
+    RuntimeStack: 'DOTNETCORE|9.0'
+    StartupCommand: 'dotnet api.dll'
+    AppSettings: '-KEY_VAULT_URI https://spiritkeys.vault.azure.net/ -AzureAd__Instance https://login.microsoftonline.com/ -AzureAd__Domain leobrowaldhgmail.onmicrosoft.com -AzureAd__TenantId b7fcc710-7abe-44d7-b015-60d1408db52e -AzureAd__ClientId d678e3ba-e30b-4721-8c5b-08ef71784074 -AzureAd__CallbackPath /signin-oidc -AzureAd__Scopes access_as_user'
+    DeploymentTypeLinux: 'zipDeploy'
+
