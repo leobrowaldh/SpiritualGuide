@@ -12,6 +12,9 @@
 		},
 		{
 			"path": "python-api"
+		},
+		{
+			"path": "api"
 		}
 	]
 }
