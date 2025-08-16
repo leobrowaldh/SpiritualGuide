@@ -17,7 +17,7 @@ steps:
   inputs:
     azureSubscription: 'Azure subscription 1 (f275f355-8e02-4494-bc67-197191969e80)'
     command: 'build'
-    projects: 'api.csproj'
+    projects: '$(working_dir)/api.csproj'
     arguments: '--configuration Release --runtime linux-x64'
 
 - task: DotNetCoreCLI@2
@@ -25,7 +25,7 @@ steps:
     azureSubscription: 'Azure subscription 1 (f275f355-8e02-4494-bc67-197191969e80)'
     command: 'publish'
     publishWebProjects: false
-    projects: 'api.csproj'
+    projects: '$(working_dir)/api.csproj'
     arguments: '--configuration Release --runtime linux-x64'
 
 - task: AzureRmWebAppDeployment@5
