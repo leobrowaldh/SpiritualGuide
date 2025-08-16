@@ -95,7 +95,7 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins(
             "https://zealous-water-0ccf68303.1.azurestaticapps.net",
-            "http://localhost:5173"
+            "https://localhost:5173"
         )
         .AllowAnyHeader()
         .AllowAnyMethod();
@@ -107,13 +107,48 @@ var app = builder.Build();
 
 app.UseHttpsRedirection();
 
+#region CORS configuration
+var allowedOrigins = (app.Configuration["ALLOWED_ORIGINS"] ?? "")
+    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins(allowedOrigins)
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
+// Dynamic OPTIONS handling
+app.Use(async (context, next) =>
+{
+    if (context.Request.Method == HttpMethods.Options)
+    {
+        var origin = context.Request.Headers["Origin"].ToString();
+        if (allowedOrigins.Contains(origin))
+        {
+            context.Response.Headers.Append("Access-Control-Allow-Origin", origin);
+            context.Response.Headers.Append("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+            context.Response.Headers.Append("Access-Control-Allow-Headers", "Content-Type");
+            context.Response.StatusCode = 204;
+            await context.Response.CompleteAsync();
+            return;
+        }
+    }
+    await next();
+});
+#endregion
 
 app.UseCors("AllowFrontend");
+
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 var scopeRequiredByApi = app.Configuration["AzureAd:Scopes"] ?? "";
 app.MapEndpoints(scopeRequiredByApi);
+
 
 app.Run();
