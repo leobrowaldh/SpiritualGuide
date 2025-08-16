@@ -13,6 +13,12 @@ variables:
   working_dir: '$(System.DefaultWorkingDirectory)/api'
 
 steps:
+- task: UseDotNet@2
+  displayName: 'Install .NET 9 SDK'
+  inputs:
+    packageType: 'sdk'
+    version: '9.0.x'
+    includePreviewVersions: true
 - task: DotNetCoreCLI@2
   inputs:
     azureSubscription: 'Azure subscription 1 (f275f355-8e02-4494-bc67-197191969e80)'
