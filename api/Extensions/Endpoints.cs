@@ -13,9 +13,9 @@ namespace api.Extensions;
 public static class Endpoints
 {
     private static string _scope = "";
-    public static void MapEndpoints(this WebApplication app, string scopeRequiredByApi)
+    public static void MapEndpoints(this WebApplication app)
     {
-        _scope = scopeRequiredByApi;
+        _scope = app.Configuration["AzureAd:Scopes"] ?? "";
         app.MapPost("/ask", Ask).WithName("ask").RequireAuthorization();
     }
 

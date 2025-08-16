@@ -1,5 +1,4 @@
-// src/services/apiService.ts
-// Service for making API calls to the FunctionApp backend
+
 
 const API_BASE_URL =  import.meta.env.VITE_API_BASE_URL;
 
@@ -37,7 +36,7 @@ export function askQuestion(question: string): Promise<AskResponse> {
   return fetchApi<AskResponse>(`${API_BASE_URL}/Ask`, { question });
 }
 
-//this one wont work, need master key, i wont access it from this ui.
+//this one will be called from an admin page
 export function addQuote(quote: string): Promise<AddQuoteResponse> {
   return fetchApi<AddQuoteResponse>(`${API_BASE_URL}/AddQuote`, { quote });
 }
