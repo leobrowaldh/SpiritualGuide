@@ -25,4 +25,4 @@ steps:
     build_timeout_in_minutes: 10
     azure_static_web_apps_api_token: $(deployment_token)
   env:
-    VITE_API_BASE_URL: "spiritual-guide-api-f7h5h3d7asencahg.swedencentral-01.azurewebsites.net"
+    VITE_API_BASE_URL: "https://spiritual-guide-api-f7h5h3d7asencahg.swedencentral-01.azurewebsites.net"
