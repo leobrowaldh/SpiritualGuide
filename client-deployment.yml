@@ -1,0 +1,26 @@
+trigger:
+  branches:
+    include:
+      - master
+  paths:
+    include:
+      - Frontend/**
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  working_dir: '$(System.DefaultWorkingDirectory)/Frontend'
+
+steps:
+
+- task: AzureStaticWebApp@0
+  inputs:
+    workingDirectory: '$(working_dir)'
+    app_location: '.'
+    app_build_command: 'npm run build'
+    output_location: 'dist'
+    config_file_location: '.'
+    skip_api_build: true
+    build_timeout_in_minutes: 10
+    azure_access_token: 'b98d8011245b8cbb3f18cd97acb24adee2c074a663912a50e5ca2f5617f0f83d01-a27428c4-e91a-4805-88e1-c27ce3ee0cfe00331250ccf68303'
