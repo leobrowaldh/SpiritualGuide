@@ -43,8 +43,7 @@ steps:
     packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
     RuntimeStack: 'DOTNETCORE|9.0'
     StartupCommand: 'dotnet api.dll'
-    AppSettings: |
-      KEY_VAULT_URI=https://spiritkeys.vault.azure.net/
+    AppSettings: KEY_VAULT_URI=https://spiritkeys.vault.azure.net/
       AzureAd__Instance=https://login.microsoftonline.com/
       AzureAd__Domain=leobrowaldhgmail.onmicrosoft.com
       AzureAd__TenantId=b7fcc710-7abe-44d7-b015-60d1408db52e
@@ -52,6 +51,7 @@ steps:
       AzureAd__CallbackPath=/signin-oidc
       AzureAd__Scopes=access_as_user
       AzureWebJobsStorage__tableServiceUri=https://spiritualguide8313.table.core.windows.net
+
 
     DeploymentTypeLinux: 'zipDeploy'
 
