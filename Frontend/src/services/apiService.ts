@@ -1,10 +1,7 @@
 // src/services/apiService.ts
 // Service for making API calls to the FunctionApp backend
 
-const API_BASE_URL =
-  import.meta.env.MODE === 'development'
-    ? 'http://localhost:7031/api'
-    : import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL =  import.meta.env.VITE_API_BASE_URL;
 
 
 

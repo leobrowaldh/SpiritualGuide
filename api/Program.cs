@@ -89,15 +89,31 @@ builder.Services.AddAzureClients(clientBuilder =>
 //});
 #endregion
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins(
+            "https://zealous-water-0ccf68303.1.azurestaticapps.net",
+            "http://localhost:5173"
+        )
+        .AllowAnyHeader()
+        .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
 
 
 app.UseHttpsRedirection();
 
+var scopeRequiredByApi = app.Configuration["AzureAd:Scopes"] ?? "";
+app.MapEndpoints(scopeRequiredByApi);
+
+app.UseCors("AllowFrontend");
+
 app.UseAuthentication();
 app.UseAuthorization();
 
-var scopeRequiredByApi = app.Configuration["AzureAd:Scopes"] ?? "";
-app.MapEndpoints(scopeRequiredByApi);
 
 app.Run();
