@@ -107,13 +107,13 @@ var app = builder.Build();
 
 app.UseHttpsRedirection();
 
-var scopeRequiredByApi = app.Configuration["AzureAd:Scopes"] ?? "";
-app.MapEndpoints(scopeRequiredByApi);
 
 app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
 app.UseAuthorization();
 
+var scopeRequiredByApi = app.Configuration["AzureAd:Scopes"] ?? "";
+app.MapEndpoints(scopeRequiredByApi);
 
 app.Run();
