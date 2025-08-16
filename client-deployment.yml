@@ -23,4 +23,4 @@ steps:
     config_file_location: '.'
     skip_api_build: true
     build_timeout_in_minutes: 10
-    azure_access_token: $(deployment_token)
+    azure_static_web_apps_api_token: $(deployment_token)
