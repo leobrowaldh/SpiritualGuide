@@ -39,10 +39,10 @@ async function fetchApi<T>(url: string, body: any): Promise<T> {
 }
 
 export function askQuestion(question: string): Promise<AskResponse> {
-  return fetchApi<AskResponse>(`${API_BASE_URL}/Ask?code=${functionKey}`, { question });
+  return fetchApi<AskResponse>(`${API_BASE_URL}/Ask`, { question });
 }
 
 //this one wont work, need master key, i wont access it from this ui.
 export function addQuote(quote: string): Promise<AddQuoteResponse> {
-  return fetchApi<AddQuoteResponse>(`${API_BASE_URL}/AddQuote?code=${functionKey}`, { quote });
+  return fetchApi<AddQuoteResponse>(`${API_BASE_URL}/AddQuote`, { quote });
 }
