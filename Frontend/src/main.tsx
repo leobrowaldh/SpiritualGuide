@@ -28,8 +28,6 @@ msalInstance.addEventCallback((event: EventMessage) => {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-      <BrowserRouter>
-        <App instance={msalInstance} />
-      </BrowserRouter>
+    <App instance={msalInstance} />
   </StrictMode>,
 )

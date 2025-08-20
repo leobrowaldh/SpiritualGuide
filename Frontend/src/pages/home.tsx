@@ -1,9 +1,15 @@
-import { useMsal } from "@azure/msal-react";
+import { useMsal, useIsAuthenticated  } from "@azure/msal-react";
 import { loginRequest } from "../auth/authConfig";
+import { Navigate } from 'react-router';
 
 
 export default function Home() {
   const { instance } = useMsal();
+  const isAuthenticated = useIsAuthenticated();
+
+  if (isAuthenticated) {
+    return <Navigate to="/ask" replace />;
+  }
   
   const handleRedirect = () => {
           instance

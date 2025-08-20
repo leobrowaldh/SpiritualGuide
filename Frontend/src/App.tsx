@@ -4,6 +4,7 @@ import { AppRouter } from './router/appRouter'
 import Home from './pages/home';
 import NavBar from './components/navbar';
 import type { PublicClientApplication } from '@azure/msal-browser';
+import { BrowserRouter } from 'react-router';
 
 
 
@@ -11,17 +12,19 @@ import type { PublicClientApplication } from '@azure/msal-browser';
 function App({ instance }: { instance: PublicClientApplication }) {
   return (
     <MsalProvider instance={instance}>
-      <div className='dark:bg-neutral-800 dark:text-white flex flex-col h-screen'>
-          <NavBar />
-          <main className=''>
-            <AuthenticatedTemplate>
-              <AppRouter />
-            </AuthenticatedTemplate>
-            <UnauthenticatedTemplate>
-              <Home />
-            </UnauthenticatedTemplate>
-          </main>
-      </div>
+      <BrowserRouter>
+        <div className='dark:bg-neutral-800 dark:text-white flex flex-col h-screen'>
+            <NavBar />
+            <main className=''>
+              <AuthenticatedTemplate>
+                <AppRouter />
+              </AuthenticatedTemplate>
+              <UnauthenticatedTemplate>
+                <Home />
+              </UnauthenticatedTemplate>
+            </main>
+        </div>
+      </BrowserRouter>
     </MsalProvider>
   )
 }
