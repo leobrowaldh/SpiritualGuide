@@ -7,7 +7,7 @@ export default function NavBar() {
     console.log('Accounts:', instance.getAllAccounts());
 
     const handleLoginRedirect = () => {
-        instance.loginRedirect( {...loginRequest, prompt: 'create'} )
+        instance.loginRedirect( loginRequest )
         .catch((error) => console.log(error));
     };
 

@@ -3,10 +3,8 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
 import { BrowserRouter } from 'react-router'
-import AuthProvider from './auth/auth-provider.tsx'
-import { EventType, PublicClientApplication, type AuthenticationResult } from '@azure/msal-browser'
+import { EventType, PublicClientApplication, type AuthenticationResult, type EventMessage } from '@azure/msal-browser'
 import { msalConfig } from './auth/authConfig.ts'
-import { MsalProvider } from '@azure/msal-react'
 
 /**
  * MSAL should be instantiated outside of the component tree to prevent it from being re-instantiated on re-renders.
@@ -21,20 +19,17 @@ if (!msalInstance.getActiveAccount() && msalInstance.getAllAccounts().length > 0
 }
 
 // Listen for sign-in event and set active account
-msalInstance.addEventCallback((event) => {
-    const authResult = event.payload as AuthenticationResult;
-    const account = authResult.account;
-    if (event.eventType === EventType.LOGIN_SUCCESS && account) {
+msalInstance.addEventCallback((event: EventMessage) => {
+    if (event.eventType === EventType.LOGIN_SUCCESS && event.payload) {
+        const account = (event.payload as AuthenticationResult).account;
         msalInstance.setActiveAccount(account);
     }
 });
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <MsalProvider instance={msalInstance}>
       <BrowserRouter>
-        <App />
+        <App instance={msalInstance} />
       </BrowserRouter>
-    </MsalProvider>
   </StrictMode>,
 )
