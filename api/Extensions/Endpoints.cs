@@ -19,12 +19,12 @@ public static class Endpoints
         app.MapPost("/ask", Ask).WithName("ask").RequireAuthorization();
     }
 
-    public static async Task<Results<Ok<AskResponse>, NotFound<string>>> Ask(
+    internal static async Task<Results<Ok<AskResponse>, NotFound<string>>> Ask(
         HttpContext httpContext, 
         AskRequest req, 
         IOpenAiService aiService, 
         IDbService dbService,
-        ILogger logger)
+        ILogger<Program> logger)
     {
         httpContext.VerifyUserHasAnyAcceptedScope(_scope);
 

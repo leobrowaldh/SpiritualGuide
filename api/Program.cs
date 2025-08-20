@@ -5,6 +5,7 @@ using api.Models.Responses;
 using api.Models.Storage;
 using api.Services;
 using Azure;
+using Azure.Data.Tables;
 using Azure.Identity;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -45,17 +46,7 @@ static void ConfigureKeyvault(WebApplicationBuilder builder)
     }
     else
     {
-        builder.Configuration.AddAzureKeyVault(new Uri(keyVaultUri), new DefaultAzureCredential(
-                        new DefaultAzureCredentialOptions()
-                        {
-                            ExcludeAzureCliCredential = true,
-                            ExcludeAzureDeveloperCliCredential = true,
-                            ExcludeAzurePowerShellCredential = true,
-                            ExcludeEnvironmentCredential = true,
-                            ExcludeInteractiveBrowserCredential = true,
-                            ExcludeSharedTokenCacheCredential = true,
-                            ExcludeWorkloadIdentityCredential = true,
-                        })
+        builder.Configuration.AddAzureKeyVault(new Uri(keyVaultUri), new DefaultAzureCredential(/*add some DefaultAzureCredentialOptions in prod*/)
         );
     }
 }
@@ -68,34 +59,24 @@ static void AddServices(WebApplicationBuilder builder)
 
     builder.Services.AddScoped<IDbService, DbService>();
 
-    string apiKey = builder.Configuration["OPENAI_API_KEY"] ??
-                    Environment.GetEnvironmentVariable("OPENAI_API_KEY")
+    string apiKey = builder.Configuration["open-ai-key"] ??
+                    Environment.GetEnvironmentVariable("open-ai-key")
                     ?? throw new Exception("OpenAI API key is missing");
     builder.Services.AddSingleton(sp => new EmbeddingClient("text-embedding-3-small", apiKey));
 
     builder.Services.AddScoped<IOpenAiService, OpenAiService>();
-    builder.Services.AddAzureClients(clientBuilder =>
+
+    var uriString = builder.Configuration["AzureWebJobsStorage:tableServiceUri"]
+    ?? builder.Configuration["AzureWebJobsStorage__tableServiceUri"]
+    ?? Environment.GetEnvironmentVariable("AzureWebJobsStorage__tableServiceUri");
+
+    if (string.IsNullOrWhiteSpace(uriString))
     {
-        //Managed identity when deployed:
-        var uriString = builder.Configuration["AzureWebJobsStorage:tableServiceUri"]
-            ?? builder.Configuration["AzureWebJobsStorage__tableServiceUri"]
-            ?? Environment.GetEnvironmentVariable("AzureWebJobsStorage__tableServiceUri");
-
-        if (string.IsNullOrWhiteSpace(uriString))
-        {
-            throw new InvalidOperationException(
-                "Missing configuration: 'AzureWebJobsStorage__tableServiceUri'. This must be set in the environment variables or App Settings."
-            );
-        }
-
-        clientBuilder
-            .AddTableServiceClient(new Uri(uriString))
-            .WithName("QuotesTableClient");
-
-        //for local dev:
-        /*clientBuilder.AddTableServiceClient(builder.Configuration["AzureWebJobsStorage"]).WithName("QuotesTableClient")*/
-        ;
-    });
+        throw new InvalidOperationException(
+            "Missing configuration: 'AzureWebJobsStorage__tableServiceUri'. This must be set in the environment variables or App Settings."
+        );
+    }
+    builder.Services.AddSingleton(new TableServiceClient(new Uri(uriString), new DefaultAzureCredential()));
     
     //HuggingFace Model:
     //builder.Services.AddHttpClient("E5LMLApi", options =>

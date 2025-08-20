@@ -1,12 +1,8 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.tsx'
-import { BrowserRouter } from 'react-router'
-import AuthProvider from './auth/auth-provider.tsx'
-import { EventType, PublicClientApplication, type AuthenticationResult } from '@azure/msal-browser'
-import { msalConfig } from './auth/authConfig.ts'
-import { MsalProvider } from '@azure/msal-react'
+import { EventType, PublicClientApplication, type AuthenticationResult } from "@azure/msal-browser";
+import { MsalProvider } from "@azure/msal-react";
+import type { ReactNode } from "react";
+import { msalConfig } from "./authConfig";
+
 
 /**
  * MSAL should be instantiated outside of the component tree to prevent it from being re-instantiated on re-renders.
@@ -29,12 +25,12 @@ msalInstance.addEventCallback((event) => {
     }
 });
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <MsalProvider instance={msalInstance}>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </MsalProvider>
-  </StrictMode>,
-)
+const AuthProvider = ({ children }: { children: ReactNode }) => {
+    return (
+        <MsalProvider instance={msalInstance}>
+            {children}
+        </MsalProvider>
+    );
+} 
+
+export default AuthProvider;

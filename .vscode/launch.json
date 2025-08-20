@@ -1,11 +1,23 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Attach to .NET Functions",
-            "type": "coreclr",
-            "request": "attach",
-            "processId": "${command:azureFunctions.pickProcess}"
-        }
-    ]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug API",
+      "type": "coreclr",
+      "request": "launch",
+      "program": "${workspaceFolder}/api/bin/Debug/net9.0/api.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/api",
+      "stopAtEntry": false,
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "name": "Vite React App",
+      "type": "msedge",
+      "request": "launch",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}/Frontend/src"
+    }
+  ]
 }

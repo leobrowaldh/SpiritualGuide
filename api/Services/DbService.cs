@@ -16,9 +16,9 @@ public class DbService : IDbService
     private readonly TableClient _quoteTableClient;
     private readonly ILogger<DbService> _logger;
 
-    public DbService(IAzureClientFactory<TableServiceClient> tableClientFactory, ILogger<DbService> logger)
+    public DbService(TableServiceClient tableServiceClient, ILogger<DbService> logger)
     {
-        _quoteTableClient = tableClientFactory.CreateClient("QuotesTableClient").GetTableClient("Quotes");
+        _quoteTableClient = tableServiceClient.GetTableClient("Quotes");
         _quoteTableClient.CreateIfNotExists(); //creates the table if it doesnt yet exist.
         _logger = logger;
     }
