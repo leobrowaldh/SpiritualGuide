@@ -1,21 +1,32 @@
 import { useState } from 'react';
 import AnswerField from '../components/answerField';
 import InputField from '../components/inputField';
-import { askQuestion, type AskResponse } from '../services/apiService'
 import { IoMdSettings } from "react-icons/io";
+import { protectedResources } from '../auth/authConfig';
+import useFetchWithMsal from '../services/useFetchWithMsal';
+import type { AskResponse } from '../models/responseModels';
 
 export default function AskPage() {
+
+  const { error, execute } = useFetchWithMsal({
+        scopes: protectedResources.spiritualGuideAPI.scopes.write,
+    });
+
   const [answer, setAnswer] = useState('');
   // const [teachers, setTeachers] = useState<number[]>([0,1,2,3,4,5]);
 
   async function handleAsk(input: string) {
-    
-    const response: AskResponse = await askQuestion(input);
+  const response = await execute("POST", `${protectedResources.spiritualGuideAPI.endpoint}/ask`, {
+    question: input,
+  });
 
-    setAnswer(`${response.quote} - ${response.author}` || "No answer found");
-
+  if (response) {
+    const askResponse = response as AskResponse;
+    setAnswer(`${askResponse.quote} - ${askResponse.author}`);
+  } else {
+    setAnswer("No answer found");
   }
-
+}
   return (
     <div className="bg-gray-300 dark:bg-neutral-900 rounded-lg my-14 flex-1 flex flex-col p-6 gap-4 w-[90%] max-w-4xl mx-auto shadow-lg">
       <div className="h-14 bg-white dark:bg-neutral-800">
@@ -26,9 +37,14 @@ export default function AskPage() {
         <IoMdSettings/>
       </div>
 
-      <div className="bg-white dark:bg-neutral-800 rounded-lg flex-1 shadow-lg">
-        <AnswerField answer={answer} />
+      <div className="bg-white dark:bg-neutral-800 rounded-lg flex-1 shadow-lg p-2">
+        {error 
+          ? <div>
+              Something went wrong while fetching your answer. Please try again later or contact support.
+            </div>
+          : <AnswerField answer={answer} />}
       </div>
+
     </div>
   );
 }
