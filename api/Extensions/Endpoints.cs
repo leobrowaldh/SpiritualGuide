@@ -12,11 +12,15 @@ namespace api.Extensions;
 
 public static class Endpoints
 {
-    private static string _scope = "";
+    private static string _writeScope = "";
     public static void MapEndpoints(this WebApplication app)
     {
-        _scope = app.Configuration["AzureAd:Scopes"] ?? "";
-        app.MapPost("/ask", Ask).WithName("ask").RequireAuthorization();
+        var clientId = app.Configuration["AzureAd:ClientId"];
+        if (string.IsNullOrEmpty(clientId))
+            throw new InvalidOperationException("AzureAd:ClientId not configured.");
+
+        var writeScope = $"api://{clientId}/write";
+        app.MapPost("/ask", Ask).WithName("ask").RequireAuthorization([_writeScope]);
     }
 
     internal static async Task<Results<Ok<AskResponse>, NotFound<string>>> Ask(
@@ -27,7 +31,8 @@ public static class Endpoints
         ILogger<Program> logger)
     {
         Console.WriteLine("Ask endpoint called.");
-        httpContext.VerifyUserHasAnyAcceptedScope(_scope);
+        //unneccessary if specifying scope in RequireAuthorization:
+        //httpContext.VerifyUserHasAnyAcceptedScope(_writeScope);
 
         string userQuestion = req.Question;
         float[] embeddedQuestion;
