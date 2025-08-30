@@ -26,6 +26,7 @@ public static class Endpoints
         IDbService dbService,
         ILogger<Program> logger)
     {
+        Console.WriteLine("Ask endpoint called.");
         httpContext.VerifyUserHasAnyAcceptedScope(_scope);
 
         string userQuestion = req.Question;

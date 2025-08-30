@@ -9,6 +9,7 @@ interface UseFetchWithMsalResult<T = any> {
     execute: (method: 'GET' | 'POST' | 'PUT' | 'DELETE', endpoint: string, data?: Record<string, any> | null) => Promise<T | Response | undefined>;
 }
 
+//this is like a ready-to-use HTTP client wrapper with auth baked in.
 const useFetchWithMsal = (msalRequest: PopupRequest): UseFetchWithMsalResult => {
     const { instance } = useMsal();
     const [isLoading, setIsLoading] = useState(false);
@@ -18,7 +19,7 @@ const useFetchWithMsal = (msalRequest: PopupRequest): UseFetchWithMsalResult => 
     const { result, error: msalError } = useMsalAuthentication(InteractionType.Popup, {
     ...msalRequest,
     account: instance.getActiveAccount() ?? undefined, // convert null to undefined
-    redirectUri: '/redirect'
+    // redirectUri: '/ask' ...if not set, it will use the one from msalConfig
     });
 
     const execute = async (
@@ -26,6 +27,7 @@ const useFetchWithMsal = (msalRequest: PopupRequest): UseFetchWithMsalResult => 
         endpoint: string, 
         data?: Record<string, any> | null
     ): Promise<any> => {
+        console.log("MSAL result:", result, "MSAL error:", msalError)
         if (msalError) {
             setError(msalError);
             return;
@@ -44,6 +46,7 @@ const useFetchWithMsal = (msalRequest: PopupRequest): UseFetchWithMsalResult => 
                 };
 
                 setIsLoading(true);
+                
                 const response = await fetch(endpoint, options);
 
                 if (response.status === 200 || response.status === 201) {

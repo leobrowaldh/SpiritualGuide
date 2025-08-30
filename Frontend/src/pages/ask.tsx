@@ -15,18 +15,26 @@ export default function AskPage() {
   const [answer, setAnswer] = useState('');
   // const [teachers, setTeachers] = useState<number[]>([0,1,2,3,4,5]);
 
-  async function handleAsk(input: string) {
-  const response = await execute("POST", `${protectedResources.spiritualGuideAPI.endpoint}/ask`, {
-    question: input,
-  });
+  console.log("Executing test API call...");
+  execute("POST", "https://localhost:7123/ask", { text: "hello" });
 
-  if (response) {
-    const askResponse = response as AskResponse;
-    setAnswer(`${askResponse.quote} - ${askResponse.author}`);
-  } else {
-    setAnswer("No answer found");
+
+  async function handleAsk(input: string) {
+    console.log("Calling execute with endpoint:", `${protectedResources.spiritualGuideAPI.endpoint}/ask`);
+    const response = await execute(
+      "POST", 
+      `${protectedResources.spiritualGuideAPI.endpoint}/ask`, 
+      { question: input, }
+    );
+
+    if (response) {
+      const askResponse = response as AskResponse;
+      setAnswer(`${askResponse.quote} - ${askResponse.author}`);
+    } else {
+      setAnswer("No answer found");
+    }
   }
-}
+  
   return (
     <div className="bg-gray-300 dark:bg-neutral-900 rounded-lg my-14 flex-1 flex flex-col p-6 gap-4 w-[90%] max-w-4xl mx-auto shadow-lg">
       <div className="h-14 bg-white dark:bg-neutral-800">
