@@ -7,23 +7,19 @@ import { useApiClient } from '../hooks/useApiClient';
 
 export default function AskPage() {
 
-  const { createClient } = useApiClient();
+  const { apiClient } = useApiClient();
   const [answer, setAnswer] = useState('');
-  // const [teachers, setTeachers] = useState<number[]>([0,1,2,3,4,5]);
-  
-async function handleAsk(input: string) {
-  const apiClientId = import.meta.env.VITE_API_CLIENT_ID;
-  const WRITE_SCOPE = `api://${apiClientId}/write`;
-  const api = createClient([WRITE_SCOPE]);
-  try {
-    const response = await api.post('/ask', { question: input });
-    const askResponse = response.data as AskResponse;
-    setAnswer(`${askResponse.quote} - ${askResponse.author}`);
-  } catch (err) {
-    console.error(err);
-    setAnswer("Something went wrong while fetching your answer.");
+
+  async function handleAsk(input: string) {
+    try {
+      const response = await apiClient.post('/ask', { question: input });
+      const askResponse = response.data as AskResponse;
+      setAnswer(`${askResponse.quote} - ${askResponse.author}`);
+    } catch (err) {
+      console.error(err);
+      setAnswer("Something went wrong while fetching your answer.");
+    }
   }
-}
   
   return (
     <div className="bg-gray-300 dark:bg-neutral-900 rounded-lg my-14 flex-1 flex flex-col p-6 gap-4 w-[90%] max-w-4xl mx-auto shadow-lg">

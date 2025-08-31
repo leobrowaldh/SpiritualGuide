@@ -10,7 +10,7 @@ const apiClientId = import.meta.env.VITE_API_CLIENT_ID;
 export const msalConfig: Configuration = {
     auth: {
         clientId: import.meta.env.VITE_CLIENT_ID, // This is the ONLY mandatory field that you need to supply.
-        authority: 'https://login.microsoftonline.com/' + import.meta.env.VITE_TENANT_ID, // Replace the placeholder with your tenant subdomain 
+        authority: 'https://externalid14.ciamlogin.com/' + import.meta.env.VITE_TENANT_ID,
         redirectUri: import.meta.env.VITE_REDIRECT_URI, // Points to window.location.origin. You must register this URI on Microsoft Entra admin center/App Registration.
         postLogoutRedirectUri: '/', // Indicates the page to navigate after logout.
         navigateToLoginRequestUrl: false, // If "true", will navigate back to the original request location before processing the auth code response.
@@ -53,7 +53,7 @@ export const msalConfig: Configuration = {
  * https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-permissions-and-consent#openid-connect-scopes
  */
 export const loginRequest = {
-    scopes: [`api://${apiClientId}/read`, `api://${apiClientId}/write`] as string[],
+    scopes: [`api://${apiClientId}/access_as_user`] as string[],
 };
 
 /**

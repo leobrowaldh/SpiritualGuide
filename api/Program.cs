@@ -20,7 +20,7 @@ using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
-ConfigureKeyvault(builder);
+ConfigureSecrets(builder);
 AddServices(builder);
 ConfigureCors(builder);
 
@@ -36,25 +36,43 @@ app.Run();
 
 
 
-static void ConfigureKeyvault(WebApplicationBuilder builder)
+static void ConfigureSecrets(WebApplicationBuilder builder)
 {
-    var keyVaultUri = builder.Configuration["KEY_VAULT_URI"];
-
-    if (string.IsNullOrEmpty(keyVaultUri))
+    if (builder.Environment.IsDevelopment())
     {
-        Console.WriteLine("KEY_VAULT_URI not found in configuration");
+        builder.Configuration.AddJsonFile("secrets.json", optional: true, reloadOnChange: true);
+        Console.WriteLine("Using local secrets.json for development");
     }
     else
     {
-        builder.Configuration.AddAzureKeyVault(new Uri(keyVaultUri), new DefaultAzureCredential(/*add some DefaultAzureCredentialOptions in prod*/)
-        );
+        var keyVaultUri = builder.Configuration["KEY_VAULT_URI"];
+        if (string.IsNullOrEmpty(keyVaultUri))
+        {
+            Console.WriteLine("KEY_VAULT_URI not found in configuration");
+        }
+        else
+        {
+            builder.Configuration.AddAzureKeyVault(
+                new Uri(keyVaultUri),
+                new DefaultAzureCredential(/*add DefaultAzureCredentialOptions for prod if needed*/)
+            );
+            Console.WriteLine($"Using Key Vault: {keyVaultUri}");
+        }
     }
 }
+
 
 static void AddServices(WebApplicationBuilder builder)
 {
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
+    var clientId = builder.Configuration["AzureAd:ClientId"] ??
+        throw new InvalidOperationException("AzureAd:ClientId not configured.");
+    // builder.Services.AddAuthorization(options =>
+    // {
+    //     options.AddPolicy($"api://{clientId}/access_as_user", policy =>
+    //         policy.RequireClaim("scp", "access_as_user"));
+    // });
     builder.Services.AddAuthorization();
 
     builder.Services.AddScoped<IDbService, DbService>();
