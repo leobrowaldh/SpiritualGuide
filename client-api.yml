@@ -52,7 +52,7 @@ steps:
       -AzureAd__CallbackPath /signin-oidc
       -AzureAd__Scopes access_as_user
       -AzureWebJobsStorage__tableServiceUri https://spiritualguide8313.table.core.windows.net
-      -ALLOWED_ORIGINS https://zealous-water-0ccf68303.1.azurestaticapps.net/
+      -ALLOWED_ORIGINS https://zealous-water-0ccf68303.1.azurestaticapps.net
 
     DeploymentTypeLinux: 'zipDeploy'
 
