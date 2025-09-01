@@ -14,11 +14,7 @@ public static class Endpoints
 {
     public static void MapEndpoints(this WebApplication app)
     {
-        var clientId = app.Configuration["AzureAd:ClientId"] ??
-            throw new InvalidOperationException("AzureAd:ClientId not configured.");
-
-        string[] _scopes = [$"api://{clientId}/access_as_user"];
-        app.MapPost("/ask", Ask).WithName("ask").RequireAuthorization();
+        app.MapPost("/ask", Ask).WithName("ask").RequireAuthorization("AccessAsUser");
     }
 
     internal static async Task<Results<Ok<AskResponse>, NotFound<string>>> Ask(
@@ -28,9 +24,7 @@ public static class Endpoints
         IDbService dbService,
         ILogger<Program> logger)
     {
-        Console.WriteLine("Ask endpoint called.");
-        //unneccessary if specifying scope in RequireAuthorization:
-        //httpContext.VerifyUserHasAnyAcceptedScope(_writeScope);
+        Console.WriteLine("Executing Ask endpoint...");
 
         string userQuestion = req.Question;
         float[] embeddedQuestion;

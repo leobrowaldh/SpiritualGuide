@@ -4,13 +4,16 @@ import InputField from '../components/inputField';
 import { IoMdSettings } from "react-icons/io";
 import type { AskResponse } from '../models/responseModels';
 import { useApiClient } from '../hooks/useApiClient';
+import { Riple } from 'react-loading-indicators';
 
 export default function AskPage() {
 
   const { apiClient } = useApiClient();
   const [answer, setAnswer] = useState('');
+  const [loading, setLoading] = useState(false);
 
   async function handleAsk(input: string) {
+    setLoading(true);
     try {
       const response = await apiClient.post('/ask', { question: input });
       const askResponse = response.data as AskResponse;
@@ -18,6 +21,8 @@ export default function AskPage() {
     } catch (err) {
       console.error(err);
       setAnswer("Something went wrong while fetching your answer.");
+    } finally {
+      setLoading(false);
     }
   }
   
@@ -32,7 +37,12 @@ export default function AskPage() {
       </div>
 
       <div className="bg-white dark:bg-neutral-800 rounded-lg flex-1 shadow-lg p-2">
-        <AnswerField answer={answer} />
+        {loading ? (
+          <div className='flex justify-center items-center h-full'>
+            <Riple color="#32cd32" size="medium" text="" textColor="" />
+          </div>
+        ) : <AnswerField answer={answer} />}
+        
       </div>
 
     </div>

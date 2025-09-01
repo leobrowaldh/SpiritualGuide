@@ -66,14 +66,9 @@ static void AddServices(WebApplicationBuilder builder)
 {
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
-    var clientId = builder.Configuration["AzureAd:ClientId"] ??
-        throw new InvalidOperationException("AzureAd:ClientId not configured.");
-    // builder.Services.AddAuthorization(options =>
-    // {
-    //     options.AddPolicy($"api://{clientId}/access_as_user", policy =>
-    //         policy.RequireClaim("scp", "access_as_user"));
-    // });
-    builder.Services.AddAuthorization();
+    builder.Services.AddAuthorizationBuilder()
+        .AddPolicy("AccessAsUser", policy =>
+            policy.RequireClaim("http://schemas.microsoft.com/identity/claims/scope", "access_as_user"));
 
     builder.Services.AddScoped<IDbService, DbService>();
 
