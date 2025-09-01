@@ -1,10 +1,9 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import App from './App.tsx'
-import { BrowserRouter } from 'react-router'
+import App from './App'
 import { EventType, PublicClientApplication, type AuthenticationResult, type EventMessage } from '@azure/msal-browser'
-import { msalConfig } from './auth/authConfig.ts'
+import { msalConfig } from './auth/authConfig'
 
 /**
  * MSAL should be instantiated outside of the component tree to prevent it from being re-instantiated on re-renders.
