@@ -1,6 +1,5 @@
 import { Route, Routes } from "react-router";
 import AskPage from "../pages/ask";
-import Settings from "../pages/settings";
 import Home from "../pages/home";
 
 export function AppRouter(){
@@ -8,7 +7,6 @@ export function AppRouter(){
         <Routes>
             <Route path="/" element={<Home/>} />
             <Route path="/ask" element={<AskPage/>} />
-            <Route path="/settings" element={<Settings/>} />
         </Routes>
     )
 }
