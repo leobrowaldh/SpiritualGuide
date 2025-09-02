@@ -29,5 +29,5 @@ steps:
     VITE_TENANT_ID: c4f79ef7-d330-47c3-ac52-dc268ebf3293
     VITE_CLIENT_ID: 956a1138-d8ff-46e4-b2c2-137e97ff513c
     VITE_API_CLIENT_ID: 2e219690-3de6-403e-9a9f-f27610316558
-    VITE_API_BASE_URL: https://spiritual-guide-api-f7h5h3d7asencahg.swedencentral-01.azurewebsites.net
+    VITE_API_BASE_URL: https://spiritual-guide-api2-gbfegjdrg5ara7he.swedencentral-01.azurewebsites.net
     VITE_REDIRECT_URI: https://zealous-water-0ccf68303.1.azurestaticapps.net/ask
