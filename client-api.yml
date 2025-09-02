@@ -39,17 +39,15 @@ steps:
     ConnectionType: 'AzureRM'
     azureSubscription: 'Azure subscription 1 (f275f355-8e02-4494-bc67-197191969e80)'
     appType: 'webAppLinux'
-    WebAppName: 'spiritual-guide-api'
+    WebAppName: 'spiritual-guide-api2'
     packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
     RuntimeStack: 'DOTNETCORE|9.0'
     appSettings: >
       -KEY_VAULT_URI https://spiritkeys.vault.azure.net/
-      -AzureAd__Instance https://login.microsoftonline.com/
-      -AzureAd__Domain leobrowaldhgmail.onmicrosoft.com
-      -AzureAd__TenantId b7fcc710-7abe-44d7-b015-60d1408db52e
-      -AzureAd__ClientId d678e3ba-e30b-4721-8c5b-08ef71784074
+      -AzureAd__Instance https://externalid14.ciamlogin.com/
+      -AzureAd__TenantId c4f79ef7-d330-47c3-ac52-dc268ebf3293
+      -AzureAd__ClientId 2e219690-3de6-403e-9a9f-f27610316558
       -AzureAd__CallbackPath /signin-oidc
-      -AzureAd__Scopes access_as_user
       -AzureWebJobsStorage__tableServiceUri https://spiritualguide8313.table.core.windows.net
       -ALLOWED_ORIGINS https://zealous-water-0ccf68303.1.azurestaticapps.net
 
