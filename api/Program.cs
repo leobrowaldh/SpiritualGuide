@@ -1,22 +1,13 @@
 using api.Extensions;
-using api.Helpers;
-using api.Models.Requests;
-using api.Models.Responses;
-using api.Models.Storage;
 using api.Services;
-using Azure;
 using Azure.Data.Tables;
 using Azure.Identity;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.Azure;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
-using Microsoft.Identity.Web.Resource;
 using Microsoft.Net.Http.Headers;
 using OpenAI.Embeddings;
-using System.Text.Json;
+
+Console.WriteLine("Starting up...");
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -114,12 +105,9 @@ static void ConfigureCors(WebApplicationBuilder builder)
     {
         options.AddPolicy("AllowFrontend", policy =>
         {
-            policy.AllowAnyOrigin()
-                .AllowAnyHeader()
+            policy.WithOrigins(allowedOrigins)
+                .WithHeaders(HeaderNames.ContentType, HeaderNames.Authorization)
                 .AllowAnyMethod();
-            // policy.WithOrigins(allowedOrigins)
-            //     .WithHeaders(HeaderNames.ContentType, HeaderNames.Authorization)
-            //     .AllowAnyMethod();
         });
     });
 }

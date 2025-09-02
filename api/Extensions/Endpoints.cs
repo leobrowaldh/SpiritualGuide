@@ -4,8 +4,6 @@ using api.Models.Responses;
 using api.Models.Storage;
 using api.Services;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.Identity.Client;
-using Microsoft.Identity.Web.Resource;
 using System.Text.Json;
 
 namespace api.Extensions;
@@ -15,6 +13,7 @@ public static class Endpoints
     public static void MapEndpoints(this WebApplication app)
     {
         app.MapPost("/ask", Ask).WithName("ask").RequireAuthorization("AccessAsUser");
+        app.MapGet("/ping", () => "pong").WithName("ping");
     }
 
     internal static async Task<Results<Ok<AskResponse>, NotFound<string>>> Ask(

@@ -42,7 +42,6 @@ steps:
     WebAppName: 'spiritual-guide-api'
     packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
     RuntimeStack: 'DOTNETCORE|9.0'
-    StartupCommand: 'dotnet api.dll'
     appSettings: >
       -KEY_VAULT_URI https://spiritkeys.vault.azure.net/
       -AzureAd__Instance https://login.microsoftonline.com/
