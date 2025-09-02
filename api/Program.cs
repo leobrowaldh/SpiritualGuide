@@ -115,7 +115,7 @@ static void ConfigureCors(WebApplicationBuilder builder)
         options.AddPolicy("AllowFrontend", policy =>
         {
             policy.WithOrigins(allowedOrigins)
-                .AllowAnyHeader()
+                .WithHeaders(HeaderNames.ContentType, HeaderNames.Authorization, HeaderNames.AccessControlAllowOrigin)
                 .AllowAnyMethod();
         });
     });
