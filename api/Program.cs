@@ -7,11 +7,15 @@ using Microsoft.Identity.Web;
 using Microsoft.Net.Http.Headers;
 using OpenAI.Embeddings;
 
-Console.WriteLine("Starting up...");
-
 var builder = WebApplication.CreateBuilder(args);
+var logger = LoggerFactory.Create(config =>
+{
+    config.AddConsole();
+}).CreateLogger("Startup");
 
-ConfigureSecrets(builder);
+logger.LogInformation("🔍 Starting up...");
+
+ConfigureSecrets(builder, logger);
 AddServices(builder);
 ConfigureCors(builder);
 
@@ -27,23 +31,23 @@ app.Run();
 
 
 
-static void ConfigureSecrets(WebApplicationBuilder builder)
+static void ConfigureSecrets(WebApplicationBuilder builder, ILogger logger)
 {
     if (builder.Environment.IsDevelopment())
     {
         builder.Configuration.AddJsonFile("secrets.json", optional: true, reloadOnChange: true);
-        Console.WriteLine("✅ Using local secrets.json for development");
+        logger.LogInformation("✅ Using local secrets.json for development");
     }
     else
     {
         var keyVaultUri = builder.Configuration["KEY_VAULT_URI"];
         if (string.IsNullOrEmpty(keyVaultUri))
         {
-            Console.WriteLine("❌ KEY_VAULT_URI not found in configuration");
+            logger.LogError("❌ KEY_VAULT_URI not found in configuration");
             throw new InvalidOperationException("KEY_VAULT_URI is required in production.");
         }
 
-        Console.WriteLine($"🔍 Attempting to connect to Key Vault at: {keyVaultUri}");
+        logger.LogInformation($"🔍 Attempting to connect to Key Vault at: {keyVaultUri}");
 
         try
         {
@@ -51,11 +55,11 @@ static void ConfigureSecrets(WebApplicationBuilder builder)
                 new Uri(keyVaultUri),
                 new DefaultAzureCredential()
             );
-            Console.WriteLine("✅ Successfully connected to Azure Key Vault.");
+            logger.LogInformation("✅ Successfully connected to Azure Key Vault.");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"❌ Failed to connect to Azure Key Vault: {ex.GetType().Name} - {ex.Message}");
+            logger.LogError($"❌ Failed to connect to Azure Key Vault: {ex.GetType().Name} - {ex.Message}");
             throw; // Let the app crash as intended
         }
     }
