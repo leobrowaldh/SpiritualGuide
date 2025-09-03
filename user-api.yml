@@ -42,7 +42,7 @@ steps:
   inputs:
     appType: 'webApp'
     azureSubscription: 'Azure subscription 1 (f275f355-8e02-4494-bc67-197191969e80)'
-    appName: 'spiritual-guide-api2'
+    appName: 'spiritual-guide-api3'
     package: '$(Build.ArtifactStagingDirectory)/**/*.zip'
     RuntimeStack: 'DOTNETCORE|9.0'
     appSettings: >
