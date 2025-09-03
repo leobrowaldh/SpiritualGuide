@@ -7,11 +7,11 @@ trigger:
       - api/**
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: 'ubuntu-latest'
 
 variables:
-  working_dir: '$(System.DefaultWorkingDirectory)/api'
   buildConfiguration: 'Release'
+  working_dir: '$(System.DefaultWorkingDirectory)/api'
 
 steps:
 - task: UseDotNet@2
@@ -21,21 +21,17 @@ steps:
     version: '9.0.x'
     includePreviewVersions: true
 
-- task: DotNetCoreCLI@2
-  displayName: 'Build project'
-  inputs:
-    command: 'build'
-    projects: '$(working_dir)/api.csproj'
-    arguments: '--configuration $(buildConfiguration) --runtime linux-x64'
+- script: |
+    dotnet restore "$(working_dir)/api.csproj"
+  displayName: 'Restore Dependencies'
 
-- task: DotNetCoreCLI@2
-  displayName: 'Publish project'
-  inputs:
-    command: 'publish'
-    publishWebProjects: false
-    projects: '$(working_dir)/api.csproj'
-    arguments: '--configuration $(buildConfiguration) --runtime linux-x64 --output $(Build.ArtifactStagingDirectory)'
-    zipAfterPublish: true
+- script: |
+    dotnet build "$(working_dir)/api.csproj" --configuration $(buildConfiguration)
+  displayName: 'Build Project'
+
+- script: |
+    dotnet publish "$(working_dir)/api.csproj" --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)
+  displayName: 'Publish Project'
 
 - task: AzureWebApp@1
   displayName: 'Deploy to Azure App Service'
@@ -43,8 +39,7 @@ steps:
     appType: 'webApp'
     azureSubscription: 'Azure subscription 1 (f275f355-8e02-4494-bc67-197191969e80)'
     appName: 'spiritual-guide-api3'
-    package: '$(Build.ArtifactStagingDirectory)/**/*.zip'
-    RuntimeStack: 'DOTNETCORE|9.0'
+    package: '$(Build.ArtifactStagingDirectory)'
     appSettings: >
       -KEY_VAULT_URI https://spiritkeys.vault.azure.net/
       -AzureAd__Instance https://externalid14.ciamlogin.com/
