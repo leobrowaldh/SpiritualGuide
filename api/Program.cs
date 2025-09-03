@@ -32,22 +32,31 @@ static void ConfigureSecrets(WebApplicationBuilder builder)
     if (builder.Environment.IsDevelopment())
     {
         builder.Configuration.AddJsonFile("secrets.json", optional: true, reloadOnChange: true);
-        Console.WriteLine("Using local secrets.json for development");
+        Console.WriteLine("✅ Using local secrets.json for development");
     }
     else
     {
         var keyVaultUri = builder.Configuration["KEY_VAULT_URI"];
         if (string.IsNullOrEmpty(keyVaultUri))
         {
-            Console.WriteLine("KEY_VAULT_URI not found in configuration");
+            Console.WriteLine("❌ KEY_VAULT_URI not found in configuration");
+            throw new InvalidOperationException("KEY_VAULT_URI is required in production.");
         }
-        else
+
+        Console.WriteLine($"🔍 Attempting to connect to Key Vault at: {keyVaultUri}");
+
+        try
         {
             builder.Configuration.AddAzureKeyVault(
                 new Uri(keyVaultUri),
-                new DefaultAzureCredential(/*add DefaultAzureCredentialOptions for prod if needed*/)
+                new DefaultAzureCredential()
             );
-            Console.WriteLine($"Using Key Vault: {keyVaultUri}");
+            Console.WriteLine("✅ Successfully connected to Azure Key Vault.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Failed to connect to Azure Key Vault: {ex.GetType().Name} - {ex.Message}");
+            throw; // Let the app crash as intended
         }
     }
 }
