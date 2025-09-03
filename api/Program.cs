@@ -8,14 +8,8 @@ using Microsoft.Net.Http.Headers;
 using OpenAI.Embeddings;
 
 var builder = WebApplication.CreateBuilder(args);
-var logger = LoggerFactory.Create(config =>
-{
-    config.AddConsole();
-}).CreateLogger("Startup");
 
-logger.LogInformation("🔍 Starting up...");
-
-ConfigureSecrets(builder, logger);
+ConfigureSecrets(builder);
 AddServices(builder);
 ConfigureCors(builder);
 
@@ -31,58 +25,29 @@ app.Run();
 
 
 
-static void ConfigureSecrets(WebApplicationBuilder builder, ILogger logger)
+static void ConfigureSecrets(WebApplicationBuilder builder)
 {
-    var keyVaultUri = builder.Configuration["KEY_VAULT_URI"];
-
     if (builder.Environment.IsDevelopment())
     {
         builder.Configuration.AddJsonFile("secrets.json", optional: true, reloadOnChange: true);
-        logger.LogInformation("✅ Using local secrets.json for development");
-
-        if (!string.IsNullOrEmpty(keyVaultUri))
-        {
-            logger.LogInformation("🔍 Attempting to connect to Key Vault (dev) at: {keyVaultUri}", keyVaultUri);
-            try
-            {
-                builder.Configuration.AddAzureKeyVault(
-                    new Uri(keyVaultUri),
-                    new DefaultAzureCredential()
-                );
-                logger.LogInformation("✅ Connected to Azure Key Vault using DefaultAzureCredential.");
-            }
-            catch (Exception ex)
-            {
-                logger.LogError("❌ Failed to connect to Azure Key Vault (dev): {ExceptionType} - {Message}", ex.GetType().Name, ex.Message);
-                throw;
-            }
-        }
+        Console.WriteLine("Using local secrets.json for development");
     }
     else
     {
+        var keyVaultUri = builder.Configuration["KEY_VAULT_URI"];
         if (string.IsNullOrEmpty(keyVaultUri))
         {
-            logger.LogError("❌ KEY_VAULT_URI not found in configuration");
-            throw new InvalidOperationException("KEY_VAULT_URI is required in production.");
+            Console.WriteLine("KEY_VAULT_URI not found in configuration");
         }
-
-        logger.LogInformation("🔍 Attempting to connect to Key Vault (prod) at: {keyVaultUri}", keyVaultUri);
-        try
+        else
         {
             builder.Configuration.AddAzureKeyVault(
                 new Uri(keyVaultUri),
                 new ManagedIdentityCredential()
             );
-            logger.LogInformation("✅ Connected to Azure Key Vault using ManagedIdentityCredential.");
-        }
-        catch (Exception ex)
-        {
-            logger.LogError("❌ Failed to connect to Azure Key Vault (prod): {ExceptionType} - {Message}", ex.GetType().Name, ex.Message);
-            throw;
         }
     }
 }
-
 
 
 static void AddServices(WebApplicationBuilder builder)
