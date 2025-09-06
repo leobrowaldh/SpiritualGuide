@@ -24,7 +24,9 @@ app.MapEndpoints();
 app.Run();
 
 
-
+//Secrets are added to config on startup.
+//TOTO: Consider adding the posibility to update secrets in production without redeploying.
+//by creating some method to refresh the configuration.
 static void ConfigureSecrets(WebApplicationBuilder builder)
 {
     if (builder.Environment.IsDevelopment())
