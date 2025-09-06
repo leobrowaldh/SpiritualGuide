@@ -13,7 +13,10 @@ import { useEffect } from 'react';
 function App({ instance }: { instance: PublicClientApplication }) {
   useEffect(() => {
     console.log('Pinging API to wake it up...');
-    fetch(`${import.meta.env.VITE_API_BASE_URL}/ping`).catch(() => {});
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/ping`)
+    .then(res => res.text())
+    .then(txt => console.log("Ping reply:", txt))
+    .catch(err => console.debug("Ping failed:", err));
   }, []);
   return (
     <MsalProvider instance={instance}>
